@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Juego de Falacias Lógicas</title>
+  <title>Juego Interactivo de Falacias Lógicas</title>
   <style>
     body {
       font-family: 'Comic Sans MS', cursive, sans-serif;
@@ -148,10 +148,65 @@
       font-weight: bold;
       color: #1d3557;
     }
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background-color: #e0e0e0;
+      border-radius: 10px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background-color: #2a9d8f;
+      transition: width 0.5s ease;
+    }
+    .game-board {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      background: url('https://i.imgur.com/7yJ7nYQ.png') no-repeat center/cover;
+      border-radius: 15px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .player {
+      position: absolute;
+      bottom: 20px;
+      left: 10px;
+      width: 50px;
+      height: 50px;
+      background: url('https://i.imgur.com/6ZqLJ8z.png') no-repeat center/contain;
+      transition: left 0.5s ease;
+    }
+    .obstacle {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 50px;
+      height: 50px;
+      background: red;
+      border-radius: 50%;
+      animation: moveObstacle 3s infinite linear;
+    }
+    @keyframes moveObstacle {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+    .score-board {
+      font-size: 1.2em;
+      color: #1d3557;
+      margin-bottom: 20px;
+    }
+    .score-board span {
+      font-weight: bold;
+      color: #e63946;
+    }
   </style>
 </head>
 <body>
-  <h1>🎉 Juego Divertido de Falacias Lógicas 🎉</h1>
+  <h1>🎉 Juego Interactivo de Falacias Lógicas 🎉</h1>
   <div class="container">
     <div id="introduction" class="introduction">
       <h2>¡Bienvenido al Mundo de las Falacias!</h2>
@@ -159,16 +214,25 @@
       <button id="startGame" class="controls start">Comenzar Aventura 🚀</button>
     </div>
 
-    <div id="gameScreen" class="hidden question-box">
-      <p id="question">¿Cuál es la falacia en este argumento?</p>
-      <div class="hint"><span>Pista:</span> Lee cuidadosamente el contexto del argumento.</div>
-      <div class="options" id="options"></div>
-      <div id="feedback" class="feedback"></div>
+    <div id="gameScreen" class="hidden">
+      <div class="score-board">Puntuación: <span id="score">0</span></div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="game-board">
+        <div class="player" id="player"></div>
+        <div class="obstacle" id="obstacle"></div>
+      </div>
+      <div class="question-box">
+        <p id="question">¿Cuál es la falacia en este argumento?</p>
+        <div class="hint"><span>Pista:</span> Lee cuidadosamente el contexto del argumento.</div>
+        <div class="options" id="options"></div>
+        <div id="feedback" class="feedback"></div>
+      </div>
       <div class="controls">
         <button id="nextQuestion" class="next hidden">Siguiente Desafío ➡️</button>
         <button id="restartGame" class="restart hidden">Reiniciar Aventura 🔁</button>
       </div>
-      <div class="character"></div>
     </div>
 
     <div id="endScreen" class="hidden end-screen">
@@ -221,6 +285,7 @@
 
     let currentQuestionIndex = 0;
     let score = 0;
+    let progress = 0;
 
     const introductionElement = document.getElementById('introduction');
     const gameScreenElement = document.getElementById('gameScreen');
@@ -234,6 +299,10 @@
     const startGameButton = document.getElementById('startGame');
     const finalScoreElement = document.getElementById('finalScore');
     const hintElement = document.querySelector('.hint');
+    const scoreElement = document.getElementById('score');
+    const progressFillElement = document.getElementById('progressFill');
+    const playerElement = document.getElementById('player');
+    const obstacleElement = document.getElementById('obstacle');
 
     function showIntroduction() {
       introductionElement.classList.remove('hidden');
@@ -244,7 +313,11 @@
     function startGame() {
       currentQuestionIndex = 0;
       score = 0;
+      progress = 0;
       loadQuestion();
+      updateScore();
+      updateProgress();
+      movePlayer();
       introductionElement.classList.add('hidden');
       gameScreenElement.classList.remove('hidden');
       endScreenElement.classList.add('hidden');
@@ -273,12 +346,30 @@
         feedbackElement.textContent = '¡Correcto! 🎉';
         feedbackElement.className = 'feedback correct';
         score++;
+        updateScore();
+        progress += 20;
+        updateProgress();
+        movePlayer();
       } else {
         feedbackElement.textContent = `Incorrecto 😢. La respuesta correcta es "${correctAnswer}".`;
         feedbackElement.className = 'feedback incorrect';
       }
 
       nextButton.classList.remove('hidden');
+    }
+
+    function updateScore() {
+      scoreElement.textContent = score;
+    }
+
+    function updateProgress() {
+      progressFillElement.style.width = `${progress}%`;
+    }
+
+    function movePlayer() {
+      const boardWidth = document.querySelector('.game-board').offsetWidth;
+      const newPosition = (progress / 100) * (boardWidth - 50);
+      playerElement.style.left = `${newPosition}px`;
     }
 
     nextButton.onclick = () => {

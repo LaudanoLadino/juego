@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,6 +13,7 @@
       padding: 20px;
       text-align: center;
       color: #333;
+      overflow-x: hidden;
     }
     h1 {
       font-size: 3em;
@@ -124,6 +126,29 @@
     .confetti:nth-child(3) { animation-duration: 6s; background: #caffbf; left: 40%; }
     .confetti:nth-child(4) { animation-duration: 8s; background: #a8dadc; left: 55%; }
     .confetti:nth-child(5) { animation-duration: 9s; background: #ffc8dd; left: 70%; }
+    .character {
+      position: absolute;
+      bottom: -50px;
+      right: 20px;
+      width: 100px;
+      height: 100px;
+      background: url('https://i.imgur.com/6ZqLJ8z.png') no-repeat center/contain;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    .hint {
+      font-size: 0.9em;
+      color: #8d99ae;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .hint span {
+      font-weight: bold;
+      color: #1d3557;
+    }
   </style>
 </head>
 <body>
@@ -137,12 +162,14 @@
 
     <div id="gameScreen" class="hidden question-box">
       <p id="question">¿Cuál es la falacia en este argumento?</p>
+      <div class="hint"><span>Pista:</span> Lee cuidadosamente el contexto del argumento.</div>
       <div class="options" id="options"></div>
       <div id="feedback" class="feedback"></div>
       <div class="controls">
         <button id="nextQuestion" class="next hidden">Siguiente Desafío ➡️</button>
         <button id="restartGame" class="restart hidden">Reiniciar Aventura 🔁</button>
       </div>
+      <div class="character"></div>
     </div>
 
     <div id="endScreen" class="hidden end-screen">
@@ -164,27 +191,32 @@
       {
         question: "Si permitimos que los estudiantes usen calculadoras en los exámenes, pronto estarán usando computadoras para todo.",
         options: ["Falacia del hombre de paja", "Pendiente resbaladiza", "Ad Hominem"],
-        answer: "Pendiente resbaladiza"
+        answer: "Pendiente resbaladiza",
+        hint: "Esta falacia asume que un pequeño paso llevará inevitablemente a una cadena de eventos negativos."
       },
       {
         question: "No puedes confiar en lo que dice Juan sobre política; él ni siquiera tiene título universitario.",
         options: ["Ad Hominem", "Falsa dicotomía", "Apelación a la ignorancia"],
-        answer: "Ad Hominem"
+        answer: "Ad Hominem",
+        hint: "Esta falacia ataca a la persona en lugar de abordar el argumento."
       },
       {
         question: "O apoyas esta ley o no te importa el futuro del país.",
         options: ["Falsa dicotomía", "Pendiente resbaladiza", "Apelación a la emoción"],
-        answer: "Falsa dicotomía"
+        answer: "Falsa dicotomía",
+        hint: "Esta falacia presenta solo dos opciones cuando en realidad hay más posibilidades."
       },
       {
         question: "Mi vecino cree que los extraterrestres existen, pero nadie ha probado que no existan, así que deben ser reales.",
         options: ["Apelación a la ignorancia", "Ad Hominem", "Falsa causa"],
-        answer: "Apelación a la ignorancia"
+        answer: "Apelación a la ignorancia",
+        hint: "Esta falacia afirma que algo es cierto porque no se ha demostrado lo contrario."
       },
       {
         question: "Todos mis amigos creen que esta película es genial, así que debe ser increíble.",
         options: ["Apelación a la popularidad", "Ad Hominem", "Falsa dicotomía"],
-        answer: "Apelación a la popularidad"
+        answer: "Apelación a la popularidad",
+        hint: "Esta falacia asume que algo es verdadero o bueno porque muchas personas lo creen."
       }
     ];
 
@@ -202,6 +234,7 @@
     const playAgainButton = document.getElementById('playAgain');
     const startGameButton = document.getElementById('startGame');
     const finalScoreElement = document.getElementById('finalScore');
+    const hintElement = document.querySelector('.hint');
 
     function showIntroduction() {
       introductionElement.classList.remove('hidden');
@@ -221,6 +254,7 @@
     function loadQuestion() {
       const currentQuestion = questions[currentQuestionIndex];
       questionElement.textContent = currentQuestion.question;
+      hintElement.innerHTML = `<span>Pista:</span> ${currentQuestion.hint}`;
       optionsElement.innerHTML = '';
       feedbackElement.textContent = '';
       feedbackElement.className = 'feedback';

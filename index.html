@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juego de Falacias Lógicas</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: linear-gradient(to bottom, #ffcccb, #fff);
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      color: #333;
+    }
+    h1 {
+      font-size: 3em;
+      color: #e63946;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .introduction, .question-box, .end-screen {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+    }
+    .introduction h2, .end-screen h2 {
+      color: #1d3557;
+      font-size: 2em;
+      text-align: center;
+    }
+    .introduction p {
+      font-size: 1.2em;
+      color: #457b9d;
+    }
+    .options button {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(to right, #f1faee, #a8dadc);
+      color: #1d3557;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .options button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    .feedback {
+      margin-top: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+      text-align: center;
+    }
+    .feedback.correct {
+      color: #2a9d8f;
+    }
+    .feedback.incorrect {
+      color: #e63946;
+    }
+    .hidden {
+      display: none;
+    }
+    .controls {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .controls button {
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .controls button.start {
+      background: linear-gradient(to right, #ffd6a5, #fdffb6);
+      color: #1d3557;
+    }
+    .controls button.restart {
+      background: linear-gradient(to right, #ffafcc, #ffc8dd);
+      color: #e63946;
+    }
+    .controls button.next {
+      background: linear-gradient(to right, #a8dadc, #f1faee);
+      color: #1d3557;
+    }
+    .controls button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    .confetti {
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      width: 50px;
+      height: 50px;
+      background: #ffadad;
+      border-radius: 50%;
+      animation: fall linear infinite;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-100%) rotate(0deg); }
+      100% { transform: translateY(100vh) rotate(360deg); }
+    }
+    .confetti:nth-child(1) { animation-duration: 5s; background: #ffd6a5; left: 10%; }
+    .confetti:nth-child(2) { animation-duration: 7s; background: #fdffb6; left: 25%; }
+    .confetti:nth-child(3) { animation-duration: 6s; background: #caffbf; left: 40%; }
+    .confetti:nth-child(4) { animation-duration: 8s; background: #a8dadc; left: 55%; }
+    .confetti:nth-child(5) { animation-duration: 9s; background: #ffc8dd; left: 70%; }
+  </style>
+</head>
+<body>
+  <h1>🎉 Juego Divertido de Falacias Lógicas 🎉</h1>
+  <div class="container">
+    <div id="introduction" class="introduction">
+      <h2>¡Bienvenido al Mundo de las Falacias!</h2>
+      <p>En este juego, aprenderás a identificar diferentes tipos de falacias lógicas mientras te diviertes. ¡Demuestra tus habilidades y conviértete en un maestro de la lógica!</p>
+      <button id="startGame" class="controls start">Comenzar Aventura 🚀</button>
+    </div>
+
+    <div id="gameScreen" class="hidden question-box">
+      <p id="question">¿Cuál es la falacia en este argumento?</p>
+      <div class="options" id="options"></div>
+      <div id="feedback" class="feedback"></div>
+      <div class="controls">
+        <button id="nextQuestion" class="next hidden">Siguiente Desafío ➡️</button>
+        <button id="restartGame" class="restart hidden">Reiniciar Aventura 🔁</button>
+      </div>
+    </div>
+
+    <div id="endScreen" class="hidden end-screen">
+      <h2>¡Aventura Completada! 🎊</h2>
+      <p id="finalScore">Tu puntuación final es: 0 de 5.</p>
+      <div class="controls">
+        <button id="playAgain" class="start">Volver a Jugar 🔄</button>
+      </div>
+      <div class="confetti"></div>
+      <div class="confetti"></div>
+      <div class="confetti"></div>
+      <div class="confetti"></div>
+      <div class="confetti"></div>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "Si permitimos que los estudiantes usen calculadoras en los exámenes, pronto estarán usando computadoras para todo.",
+        options: ["Falacia del hombre de paja", "Pendiente resbaladiza", "Ad Hominem"],
+        answer: "Pendiente resbaladiza"
+      },
+      {
+        question: "No puedes confiar en lo que dice Juan sobre política; él ni siquiera tiene título universitario.",
+        options: ["Ad Hominem", "Falsa dicotomía", "Apelación a la ignorancia"],
+        answer: "Ad Hominem"
+      },
+      {
+        question: "O apoyas esta ley o no te importa el futuro del país.",
+        options: ["Falsa dicotomía", "Pendiente resbaladiza", "Apelación a la emoción"],
+        answer: "Falsa dicotomía"
+      },
+      {
+        question: "Mi vecino cree que los extraterrestres existen, pero nadie ha probado que no existan, así que deben ser reales.",
+        options: ["Apelación a la ignorancia", "Ad Hominem", "Falsa causa"],
+        answer: "Apelación a la ignorancia"
+      },
+      {
+        question: "Todos mis amigos creen que esta película es genial, así que debe ser increíble.",
+        options: ["Apelación a la popularidad", "Ad Hominem", "Falsa dicotomía"],
+        answer: "Apelación a la popularidad"
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const introductionElement = document.getElementById('introduction');
+    const gameScreenElement = document.getElementById('gameScreen');
+    const endScreenElement = document.getElementById('endScreen');
+    const questionElement = document.getElementById('question');
+    const optionsElement = document.getElementById('options');
+    const feedbackElement = document.getElementById('feedback');
+    const nextButton = document.getElementById('nextQuestion');
+    const restartButton = document.getElementById('restartGame');
+    const playAgainButton = document.getElementById('playAgain');
+    const startGameButton = document.getElementById('startGame');
+    const finalScoreElement = document.getElementById('finalScore');
+
+    function showIntroduction() {
+      introductionElement.classList.remove('hidden');
+      gameScreenElement.classList.add('hidden');
+      endScreenElement.classList.add('hidden');
+    }
+
+    function startGame() {
+      currentQuestionIndex = 0;
+      score = 0;
+      loadQuestion();
+      introductionElement.classList.add('hidden');
+      gameScreenElement.classList.remove('hidden');
+      endScreenElement.classList.add('hidden');
+    }
+
+    function loadQuestion() {
+      const currentQuestion = questions[currentQuestionIndex];
+      questionElement.textContent = currentQuestion.question;
+      optionsElement.innerHTML = '';
+      feedbackElement.textContent = '';
+      feedbackElement.className = 'feedback';
+      nextButton.classList.add('hidden');
+      restartButton.classList.add('hidden');
+
+      currentQuestion.options.forEach(option => {
+        const button = document.createElement('button');
+        button.textContent = option;
+        button.onclick = () => checkAnswer(option, currentQuestion.answer);
+        optionsElement.appendChild(button);
+      });
+    }
+
+    function checkAnswer(selectedOption, correctAnswer) {
+      if (selectedOption === correctAnswer) {
+        feedbackElement.textContent = '¡Correcto! 🎉';
+        feedbackElement.className = 'feedback correct';
+        score++;
+      } else {
+        feedbackElement.textContent = `Incorrecto 😢. La respuesta correcta es "${correctAnswer}".`;
+        feedbackElement.className = 'feedback incorrect';
+      }
+
+      nextButton.classList.remove('hidden');
+    }
+
+    nextButton.onclick = () => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        loadQuestion();
+      } else {
+        endGame();
+      }
+    };
+
+    function endGame() {
+      gameScreenElement.classList.add('hidden');
+      endScreenElement.classList.remove('hidden');
+      finalScoreElement.textContent = `Tu puntuación final es: ${score} de ${questions.length}.`;
+    }
+
+    restartButton.onclick = startGame;
+    playAgainButton.onclick = startGame;
+    startGameButton.onclick = startGame;
+
+    showIntroduction();
+  </script>
+</body>
+</html>
+```
